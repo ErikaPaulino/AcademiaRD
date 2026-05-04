@@ -81,6 +81,7 @@ function Pendientes() {
             onChange={(e) => setNuevoPendiente({...nuevoPendiente, descripcion: e.target.value})}
           />
           
+          <h4 className="titulo-seccion">Fecha de Vencimiento</h4>
           <input 
             className="entrada-fecha"
             type="date" 
