@@ -1,0 +1,111 @@
+/* Estilos Generales */
+.contenedor-principal-pendientes {
+    padding: 30px;
+    max-width: 900px;
+    margin: 20px auto;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+/* Area de pendientes */
+.titulo-seccion {
+    color: #2563eb;
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+}
+
+/* Diseño del Formulario */
+.seccion-registro-tarea {
+    margin-bottom: 50px;
+    border-bottom: 2px dashed #ddd;
+    padding-bottom: 30px;
+}
+
+.formulario-pendientes {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.entrada-texto, 
+.area-descripcion, 
+.entrada-fecha {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+.area-descripcion {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.boton-guardar-pendiente {
+    background-color: #2563eb;
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: 0.3s ease;
+    margin-top: 5px;
+}
+
+.boton-guardar-pendiente:hover {
+    background-color: #1e40af;
+    transform: translateY(-2px);
+}
+
+/* Diseño de la Tabla de Tareas */
+.tabla-gestion-pendientes {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.tabla-gestion-pendientes thead tr {
+    background-color: #2563eb;
+    color: white;
+    text-align: left;
+}
+
+.tabla-gestion-pendientes th, 
+.tabla-gestion-pendientes td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.titulo-tarea-lista {
+    display: block;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.descripcion-tarea-lista {
+    font-size: 0.9rem;
+    color: #777;
+    margin: 5px 0 0 0;
+}
+
+/* Selectores de Estado */
+.selector-estado-tarea {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #bbb;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.tarea-completada {
+    background-color: #dcfce7 !important;
+    color: #166534;
+    font-weight: bold;
+    border-color: #bbf7d0;
+}
+
+/*fin area de pendientes */

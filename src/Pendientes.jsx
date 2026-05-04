@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
+import './estilos.css';
 
 function Pendientes() {
   const [listaPendientes, setListaPendientes] = useState([]);
@@ -10,10 +11,12 @@ function Pendientes() {
     fecha_vencimiento: ''
   });
 
-  //Cargar pendientes al iniciar
+  // Cargar pendientes al iniciar
   useEffect(() => {
     obtenerPendientes();
   }, []);
+
+  // Función para obtener pendientes desde Supabase
 
   const obtenerPendientes = async () => {
     const { data, error } = await supabase
@@ -53,63 +56,77 @@ function Pendientes() {
     else obtenerPendientes(); // Refrescar vista
   };
 
+  // formulario para agregar nuevos pendientes y tabla para mostrar los pendientes actuales con opcion de cambiar su estado
+
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: 'auto', fontFamily: 'sans-serif' }}>
+    <div className="contenedor-principal-pendientes">
       
-      {/* FORMULARIO */}
-      <section style={{ marginBottom: '40px', borderBottom: '1px solid #ccc', paddingBottom: '40px' }}>
-        <h3>Guardar Pendientes</h3>
-        <form onSubmit={agregarPendiente} style={{ display: 'grid', gap: '10px' }}>
+      {/* formulario */}
+      <section className="seccion-registro-tarea">
+        <h3 className="titulo-seccion">Gestion de Tareas y Pendientes</h3>
+        
+        <form onSubmit={agregarPendiente} className="formulario-pendientes">
           <input 
-            type="text" placeholder="Título" value={nuevoPendiente.titulo}
+            className="entrada-texto"
+            type="text" 
+            placeholder="Título de la tarea" 
+            value={nuevoPendiente.titulo}
             onChange={(e) => setNuevoPendiente({...nuevoPendiente, titulo: e.target.value})}
           />
+          
           <textarea 
-            placeholder="Descripción" value={nuevoPendiente.descripcion}
+            className="area-descripcion"
+            placeholder="Detalles o notas de la tarea..." 
+            value={nuevoPendiente.descripcion}
             onChange={(e) => setNuevoPendiente({...nuevoPendiente, descripcion: e.target.value})}
           />
+          
           <input 
-            type="date" value={nuevoPendiente.fecha_vencimiento}
+            className="entrada-fecha"
+            type="date" 
+            value={nuevoPendiente.fecha_vencimiento}
             onChange={(e) => setNuevoPendiente({...nuevoPendiente, fecha_vencimiento: e.target.value})}
           />
-          <button type="submit" style={{ background: '#2563eb', color: 'white', border: 'none', padding: '10px', cursor: 'pointer' }}>
-            Guardar Tarea
+          
+          <button type="submit" className="boton-guardar-pendiente">
+            Guardar en la Academia
           </button>
         </form>
       </section>
-      {/* Lista de pendientes */}
-      <section>
-        <h3>Lista de Pendientes</h3>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+
+      {/* tabla de tareas */}
+      <section className="seccion-lista-tareas">
+        <h3 className="titulo-seccion">Pendientes y Tareas</h3>
+        
+        <table className="tabla-gestion-pendientes">
           <thead>
-            <tr style={{ textAlign: 'left', borderBottom: '2px solid #2563eb' }}>
-              <th>Título</th>
+            <tr>
+              <th>Información de la Tarea</th>
               <th>Vencimiento</th>
-              <th>| Estado</th>
+              <th>Estado</th>
             </tr>
           </thead>
+          
           <tbody>
             {listaPendientes.map((p) => (
-              <tr key={p.id_pendiente} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: '10px 0' }}>
-                  <strong>{p.titulo}</strong>
-                  <div style={{ fontSize: '12px', color: '#666' }}>{p.descripcion}</div>
+              <tr key={p.id_pendiente} className="fila-tarea">
+                <td className="celda-info-principal">
+                  <span className="titulo-tarea-lista">{p.titulo}</span>
+                  <p className="descripcion-tarea-lista">{p.descripcion}</p>
                 </td>
-                <td>{p.fecha_vencimiento}</td>
-                <td>
+                
+                <td className="celda-fecha">{p.fecha_vencimiento}</td>
+                
+                <td className="celda-acciones">
                   <select 
+                    className={`selector-estado-tarea ${p.estado === 'finalizado' ? 'tarea-completada' : ''}`}
                     value={p.estado} 
                     onChange={(e) => actualizarEstado(p.id_pendiente, e.target.value)}
-                    style={{ 
-                      padding: '5px', 
-                      borderRadius: '4px',
-                      backgroundColor: p.estado === 'finalizado' ? '#dcfce7' : '#fff'
-                    }}
                   >
                     <option value="Activo">Activo</option>
                     <option value="elaborando">Elaborando</option>
-                    <option value="finalizado">Finalizado</option>
-                    <option value="cancelado">Cancelado</option>
+                    <option value="finalizado">Finalizado ✅</option>
+                    <option value="cancelado">Cancelado ❌</option>
                   </select>
                 </td>
               </tr>
@@ -117,6 +134,7 @@ function Pendientes() {
           </tbody>
         </table>
       </section>
+
     </div>
   );
 }
