@@ -125,8 +125,8 @@ function Pendientes() {
                   >
                     <option value="Activo">Activo</option>
                     <option value="elaborando">Elaborando</option>
-                    <option value="finalizado">Finalizado ✅</option>
-                    <option value="cancelado">Cancelado ❌</option>
+                    <option value="finalizado">Finalizado</option>
+                    <option value="cancelado">Cancelado</option>
                   </select>
                 </td>
               </tr>
