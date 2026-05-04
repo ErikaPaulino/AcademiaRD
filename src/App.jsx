@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Pendientes from './Pendientes'; 
+import Asistencias from "./Asistencias";
 
 function App() {
+
+  const [vista, setVista] = useState("pendientes");
+
   return (
     <div className="App">
       <header style={{ 
@@ -11,11 +15,33 @@ function App() {
         color: 'white',
         marginBottom: '20px'
       }}>
-        <h1>Pendientes</h1>
+        <h1>Sistema Escolar</h1>
+
+        {/* BOTONES */}
+        <button 
+          style={{ margin: "5px" }} 
+          onClick={() => setVista("pendientes")}
+        >
+           Pendientes
+        </button>
+
+        <button 
+          style={{ margin: "5px" }} 
+          onClick={() => setVista("asistencias")}
+        >
+           Asistencia
+        </button>
       </header>
       
-      {/*componente para que la profesora agregue tareas */}
-      <Pendientes idNivelActual={1} /> 
+      {/* VISTAS */}
+      {vista === "pendientes" && (
+        <Pendientes idNivelActual={1} />
+      )}
+
+      {vista === "asistencias" && (
+        <Asistencias />
+      )}
+
     </div>
   );
 }
