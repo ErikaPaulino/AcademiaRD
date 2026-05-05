@@ -7,7 +7,7 @@ function Pendientes() {
   const [nuevoPendiente, setNuevoPendiente] = useState({
     titulo: '',
     descripcion: '',
-    estado: 'Activo', 
+    estado: 'activo', 
     fecha_vencimiento: ''
   });
 
@@ -40,7 +40,8 @@ function Pendientes() {
 
     if (error) alert("Error: " + error.message);
     else {
-      setNuevoPendiente({ titulo: '', descripcion: '', estado: 'Activo', fecha_vencimiento: '' });
+      // 🔧 CORREGIDO: estado en minúscula
+      setNuevoPendiente({ titulo: '', descripcion: '', estado: 'activo', fecha_vencimiento: '' });
       obtenerPendientes();
     }
   };
@@ -120,11 +121,11 @@ function Pendientes() {
                 
                 <td className="celda-acciones">
                   <select 
-                    className={`selector-estado-tarea ${p.estado === 'finalizado' ? 'tarea-completada' : ''}`}
+                    className={`selector-estado-tarea tarea-${p.estado.toLowerCase()}`}
                     value={p.estado} 
                     onChange={(e) => actualizarEstado(p.id_pendiente, e.target.value)}
                   >
-                    <option value="Activo">Activo</option>
+                    <option value="activo">Activo</option>
                     <option value="elaborando">Elaborando</option>
                     <option value="finalizado">Finalizado</option>
                     <option value="cancelado">Cancelado</option>
