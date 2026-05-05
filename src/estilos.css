@@ -108,6 +108,82 @@
     border-color: #bbf7d0;
 }
 
+/* celular */
+@media (max-width: 768px) {
+
+    .contenedor-principal-pendientes {
+        padding: 15px;
+        margin: 10px;
+    }
+
+    .titulo-seccion {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    .seccion-registro-tarea {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+    }
+
+    .formulario-pendientes {
+        gap: 10px;
+    }
+
+    .entrada-texto, 
+    .area-descripcion, 
+    .entrada-fecha {
+        font-size: 0.95rem;
+        padding: 10px;
+    }
+
+    .boton-guardar-pendiente {
+        padding: 12px;
+        font-size: 0.95rem;
+    }
+
+    /* TABLA RESPONSIVE */
+    .tabla-gestion-pendientes thead {
+        display: none; /* Oculta encabezados */
+    }
+
+    .tabla-gestion-pendientes, 
+    .tabla-gestion-pendientes tbody, 
+    .tabla-gestion-pendientes tr, 
+    .tabla-gestion-pendientes td {
+        display: block;
+        width: 100%;
+    }
+
+    .tabla-gestion-pendientes tr {
+        margin-bottom: 15px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 10px;
+        background: white;
+    }
+
+    .tabla-gestion-pendientes td {
+        padding: 8px 5px;
+        border: none;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .titulo-tarea-lista {
+        font-size: 1rem;
+    }
+
+    .descripcion-tarea-lista {
+        font-size: 0.85rem;
+    }
+
+    .selector-estado-tarea {
+        width: 100%;
+        font-size: 0.9rem;
+    }
+}
+
 /*fin area de pendientes */
 
 /* =========================
