@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Pendientes from './Pendientes'; 
 import Asistencias from "./Asistencias";
+import Dashboard from "./Dashboard";
 
 function App() {
 
@@ -31,6 +32,13 @@ function App() {
         >
            Asistencia
         </button>
+
+        <button 
+  style={{ margin: "5px" }} 
+  onClick={() => setVista("dashboard")}
+>
+  Dashboard
+</button>
       </header>
       
       {/* VISTAS */}
@@ -41,6 +49,10 @@ function App() {
       {vista === "asistencias" && (
         <Asistencias />
       )}
+
+      {vista === "dashboard" && (
+  <Dashboard />
+)}
 
     </div>
   );

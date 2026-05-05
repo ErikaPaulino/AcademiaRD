@@ -109,3 +109,36 @@
 }
 
 /*fin area de pendientes */
+
+/* =========================
+   ESTILOS DEL DASHBOARD
+   ========================= */
+
+/*
+  Tarjetas de resumen:
+  Se usan para mostrar métricas importantes
+*/
+.card-dashboard {
+    background-color: #2563eb; /* Azul principal del sistema */
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    min-width: 140px;
+    text-align: center;
+    flex: 1;
+
+    /* Sombra suave para dar efecto moderno */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Título dentro de la tarjeta */
+.card-dashboard h4 {
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+/* Número grande */
+.card-dashboard p {
+    font-size: 1.6rem;
+    font-weight: bold;
+}
