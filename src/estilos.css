@@ -101,7 +101,6 @@
     cursor: pointer;
 }
 
-/* 🔧 CORREGIDO: nombres alineados con React */
 .tarea-finalizado {
     background-color: #dcfce7 !important;
     color: #166534;
