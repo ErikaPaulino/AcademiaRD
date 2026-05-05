@@ -5,9 +5,9 @@ import "./estilos.css";
 function Dashboard() {
 
   /*
-  ==================================================
+ 
   ESTADOS CRUDOS (DATOS DE LA BD)
-  ==================================================
+ 
   */
   const [pendientes, setPendientes] = useState([]);
   const [estudiantes, setEstudiantes] = useState([]);
@@ -19,46 +19,46 @@ function Dashboard() {
   const [cursos, setCursos] = useState([]);
 
   /*
-  ==================================================
-  RESUMEN PROCESADO
-  ==================================================
+
+  RESUMEN
+  
   */
   const [resumen, setResumen] = useState({});
 
   /*
-  ==================================================
+  
   ALERTAS DEL SISTEMA
-  ==================================================
+  
   */
   const [alertas, setAlertas] = useState([]);
 
   /*
-  ==================================================
+ 
   CARGA INICIAL
-  ==================================================
+  
   */
   useEffect(() => {
     cargarDatos();
   }, []);
 
   /*
-  ==================================================
-  FUNCIÓN PRINCIPAL (SOLO LECTURA DESDE SUPABASE)
-  ==================================================
+  
+  FUNCIÓN PRINCIPAL 
+  
   */
   const cargarDatos = async () => {
 
-    // 🔹 CONSULTAS A BASE DE DATOS (NO SE INVENTA NADA)
+    // CONSULTAS A BASE DE DATOS
     const { data: p } = await supabase.from("pendientes").select("*");
     const { data: e } = await supabase.from("estudiantes").select("*");
     const { data: a } = await supabase.from("asistencias").select("*");
     const { data: pa } = await supabase.from("pagos").select("*");
     const { data: g } = await supabase.from("egresos").select("*");
 
-    // 🆕 CURSOS DESDE BASE DE DATOS
+    //  CURSOS
     const { data: c } = await supabase.from("cursos").select("*");
 
-    // 🔹 GUARDAR EN ESTADO
+    // GUARDAR EN ESTADO
     setPendientes(p || []);
     setEstudiantes(e || []);
     setAsistencias(a || []);
@@ -69,21 +69,21 @@ function Dashboard() {
     const hoy = new Date();
 
     /*
-    ==================================================
+    
     PENDIENTES (TAREAS)
-    ==================================================
+    
     */
 
-    // 🔴 "VENCIDO" = tarea cuya fecha ya pasó y no está finalizada
+    // VENCIDO
     const vencidos = (p || []).filter(x =>
       new Date(x.fecha_vencimiento) < hoy &&
       x.estado !== "finalizado"
     ).length;
 
     /*
-    ==================================================
+    
     ASISTENCIAS
-    ==================================================
+    
     */
 
     const presentes = a?.filter(x => x.estado === "presente").length || 0;
@@ -93,16 +93,16 @@ function Dashboard() {
 
     const totalAsistencias = presentes + ausentes + excusa;
 
-    // 📊 porcentaje real de asistencia
+    // porcentaje real de asistencia
     const porcentajeAsistencia =
       totalAsistencias > 0
         ? ((presentes / totalAsistencias) * 100).toFixed(1)
         : 0;
 
     /*
-    ==================================================
+    
     FINANZAS
-    ==================================================
+    
     */
 
     const totalPagos = pa?.reduce(
@@ -121,9 +121,9 @@ function Dashboard() {
       .reduce((acc, x) => acc + Number(x.monto || 0), 0) || 0;
 
     /*
-    ==================================================
-    ALERTAS INTELIGENTES
-    ==================================================
+    
+    ALERTAS
+    
     */
     const nuevasAlertas = [];
 
@@ -136,9 +136,9 @@ function Dashboard() {
     setAlertas(nuevasAlertas);
 
     /*
-    ==================================================
+    
     RESUMEN FINAL
-    ==================================================
+    
     */
     setResumen({
       estudiantes: e?.length || 0,
@@ -157,9 +157,9 @@ function Dashboard() {
   };
 
   /*
-  ==================================================
-  COLORES DE ESTADO (SIN CAMBIOS)
-  ==================================================
+  
+  COLORES DE ESTADO 
+  
   */
   const colorEstado = (estado) => {
     switch (estado) {
@@ -172,9 +172,9 @@ function Dashboard() {
   };
 
   /*
-  ==================================================
+  
   INTERFAZ
-  ==================================================
+  
   */
   return (
     <div className="contenedor-principal-pendientes">
@@ -199,9 +199,9 @@ function Dashboard() {
         </div>
       )}
 
-      {/* ==================================================
-          TARJETAS (CON ACCESIBILIDAD + EXPLICACIÓN)
-      ================================================== */}
+      {/* 
+          TARJETAS 
+       */}
       <div
         role="region"
         aria-label="Resumen general del sistema"
@@ -286,9 +286,8 @@ function Dashboard() {
 
       </div>
 
-      {/* ==================================================
-    🆕 CURSOS (VERSIÓN MEJORADA - LISTA ACCESIBLE)
-================================================== */}
+      {/* 
+    CURSOS  */}
 <h3 className="titulo-seccion">Cursos disponibles</h3>
 
 <div
@@ -351,9 +350,9 @@ function Dashboard() {
 
 </div>
 
-      {/* ==================================================
+      {/* 
           TABLA DE PENDIENTES
-      ================================================== */}
+       */}
       <h3 className="titulo-seccion">Últimos Pendientes</h3>
 
       <table className="tabla-gestion-pendientes" role="table">
