@@ -1,259 +1,306 @@
 /*
-  ================================
-  IMPORTACIONES
-  ================================
+==================================================
+DASHBOARD PRO - SISTEMA ESCOLAR
+==================================================
 
-  React:
-  - useState → permite manejar estados (datos dinámicos)
-  - useEffect → permite ejecutar código automáticamente cuando el componente se carga
+Este dashboard:
 
-  supabase:
-  - Cliente de conexión a la base de datos
-  - Fue configurado previamente en supabaseClient.js
+✔ Lee datos de múltiples tablas (Supabase)
+✔ Calcula métricas reales del sistema
+✔ Genera porcentajes y alertas
+✔ NO modifica datos (solo lectura)
 
-  estilos.css:
-  - Archivo donde están definidos los estilos visuales del sistema
+TABLAS USADAS:
+- estudiantes
+- asistencias
+- pendientes
+- pagos
+- egresos
+
+NOTA IMPORTANTE:
+Los nombres de campos deben coincidir con tu BD:
+- pagos.monto
+- pagos.estado (pagado / pendiente)  ← si no existe, ajusta
+- asistencias.estado (presente / ausente / excusa / feriado)
 */
+
 import React, { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 import "./estilos.css";
 
-/*
-  ================================
-  COMPONENTE DASHBOARD
-  ================================
-
-  Este componente representa el panel principal de visualización del sistema.
-
-  Su función es:
-  - Consultar datos desde la base de datos
-  - Procesarlos
-  - Mostrar un resumen visual (tarjetas + tabla)
-
-  IMPORTANTE:
-  Este componente es SOLO DE LECTURA (no modifica datos)
-*/
 function Dashboard() {
 
   /*
-    ================================
-    ESTADOS
-    ================================
-
-    pendientes:
-    - Almacena todos los registros obtenidos desde la tabla "pendientes"
-
-    resumen:
-    - Almacena métricas calculadas a partir de esos datos
-    - Se usa para mostrar información en las tarjetas del dashboard
+  ==================================================
+  ESTADOS CRUDOS (DATOS DE LA BD)
+  ==================================================
   */
   const [pendientes, setPendientes] = useState([]);
-
-  const [resumen, setResumen] = useState({
-    total: 0,
-    activos: 0,
-    elaborando: 0,
-    finalizados: 0,
-    cancelados: 0,
-    vencidos: 0
-  });
+  const [estudiantes, setEstudiantes] = useState([]);
+  const [asistencias, setAsistencias] = useState([]);
+  const [pagos, setPagos] = useState([]);
+  const [gastos, setGastos] = useState([]);
 
   /*
-    ================================
-    useEffect (CICLO DE VIDA)
-    ================================
+  ==================================================
+  RESUMEN PROCESADO
+  ==================================================
+  */
+  const [resumen, setResumen] = useState({});
 
-    Este hook se ejecuta automáticamente cuando el componente se monta (se carga en pantalla).
+  /*
+  ==================================================
+  ALERTAS DEL SISTEMA
+  ==================================================
+  */
+  const [alertas, setAlertas] = useState([]);
 
-    [] → significa que solo se ejecuta UNA VEZ
+  /*
+  ==================================================
+  CARGA INICIAL
+  ==================================================
   */
   useEffect(() => {
-    obtenerPendientes();
+    cargarDatos();
   }, []);
 
   /*
-    ================================
-    FUNCIÓN: obtenerPendientes
-    ================================
-
-    - Consulta la base de datos (Supabase)
-    - Obtiene todos los registros de la tabla "pendientes"
-    - Ordena los datos por fecha de creación (los más recientes primero)
-    - Calcula estadísticas
+  ==================================================
+  FUNCIÓN PRINCIPAL
+  ==================================================
   */
-  const obtenerPendientes = async () => {
+  const cargarDatos = async () => {
 
-    /*
-      Consulta a Supabase:
+    // 🔹 CONSULTAS
+    const { data: p } = await supabase.from("pendientes").select("*");
+    const { data: e } = await supabase.from("estudiantes").select("*");
+    const { data: a } = await supabase.from("asistencias").select("*");
+    const { data: pa } = await supabase.from("pagos").select("*");
+    const { data: g } = await supabase.from("egresos").select("*");
 
-      .from("pendientes") → tabla a consultar
-      .select("*") → traer todas las columnas
-      .order(...) → ordenar resultados
-    */
-    const { data, error } = await supabase
-      .from("pendientes")
-      .select("*")
-      .order("created_at", { ascending: false });
+    // 🔹 GUARDAR CRUDOS
+    setPendientes(p || []);
+    setEstudiantes(e || []);
+    setAsistencias(a || []);
+    setPagos(pa || []);
+    setGastos(g || []);
 
-    /*
-      Manejo de errores:
-      Si ocurre un error en la consulta, se muestra en consola
-      y se detiene la ejecución
-    */
-    if (error) {
-      console.error(error.message);
-      return;
-    }
-
-    /*
-      Guardamos los datos en el estado
-      Esto permite que React los use para renderizar
-    */
-    setPendientes(data);
-
-    /*
-      ================================
-      PROCESAMIENTO DE DATOS
-      ================================
-
-      A partir de los datos obtenidos, se calculan métricas
-    */
-
-    // Fecha actual del sistema (para comparar vencimientos)
     const hoy = new Date();
 
     /*
-      Cada filtro recorre el array y cuenta elementos que cumplen una condición
-      .length → devuelve la cantidad
+    ==================================================
+    PENDIENTES
+    ==================================================
     */
-    const activos = data.filter(p => p.estado === "Activo").length;
-
-    const elaborando = data.filter(p => p.estado === "elaborando").length;
-
-    const finalizados = data.filter(p => p.estado === "finalizado").length;
-
-    const cancelados = data.filter(p => p.estado === "cancelado").length;
+    const vencidos = (p || []).filter(x =>
+      new Date(x.fecha_vencimiento) < hoy &&
+      x.estado !== "finalizado"
+    ).length;
 
     /*
-      TAREAS VENCIDAS:
-
-      Condición:
-      - Fecha de vencimiento menor que hoy
-      - Y que NO esté finalizada
-
-      new Date(...) → convierte texto a fecha real para comparar
+    ==================================================
+    ASISTENCIAS
+    ==================================================
     */
-    const vencidos = data.filter(p => {
-      return (
-        new Date(p.fecha_vencimiento) < hoy &&
-        p.estado !== "finalizado"
-      );
-    }).length;
+    const presentes = a?.filter(x => x.estado === "presente").length || 0;
+    const ausentes = a?.filter(x => x.estado === "ausente").length || 0;
+    const excusa = a?.filter(x => x.estado === "excusa").length || 0;
+    const feriados = a?.filter(x => x.estado === "feriado").length || 0;
+
+    const totalAsistencias = presentes + ausentes + excusa;
+
+    // 📊 PORCENTAJE DE ASISTENCIA
+    const porcentajeAsistencia =
+      totalAsistencias > 0
+        ? ((presentes / totalAsistencias) * 100).toFixed(1)
+        : 0;
 
     /*
-      Guardamos todas las métricas en el estado "resumen"
-      Esto actualizará automáticamente la interfaz
+    ==================================================
+    FINANZAS
+    ==================================================
+    */
+
+    // 💵 PAGOS (ingresos)
+    const totalPagos = pa?.reduce(
+      (acc, x) => acc + Number(x.monto || 0),
+      0
+    ) || 0;
+
+    // 💸 GASTOS
+    const totalGastos = g?.reduce(
+      (acc, x) => acc + Number(x.monto || 0),
+      0
+    ) || 0;
+
+    // 📊 BALANCE
+    const balance = totalPagos - totalGastos;
+
+    // 🔴 DEUDOR (pagos pendientes)
+    const totalDeudor = pa?.filter(x => x.estado === "pendiente")
+      .reduce((acc, x) => acc + Number(x.monto || 0), 0) || 0;
+
+    /*
+    ==================================================
+    ALERTAS INTELIGENTES
+    ==================================================
+    */
+    const nuevasAlertas = [];
+
+    if (vencidos > 0) {
+      nuevasAlertas.push(`⚠ Hay ${vencidos} tareas vencidas`);
+    }
+
+    if (ausentes > presentes) {
+      nuevasAlertas.push("⚠ Hay más ausentes que presentes");
+    }
+
+    if (totalDeudor > 0) {
+      nuevasAlertas.push(`⚠ Deuda pendiente: RD$ ${totalDeudor}`);
+    }
+
+    if (balance < 0) {
+      nuevasAlertas.push("⚠ El balance es negativo");
+    }
+
+    if (porcentajeAsistencia < 70) {
+      nuevasAlertas.push("⚠ Baja asistencia general");
+    }
+
+    setAlertas(nuevasAlertas);
+
+    /*
+    ==================================================
+    GUARDAR RESUMEN
+    ==================================================
     */
     setResumen({
-      total: data.length,
-      activos,
-      elaborando,
-      finalizados,
-      cancelados,
-      vencidos
+      estudiantes: e?.length || 0,
+      presentes,
+      ausentes,
+      excusa,
+      feriados,
+      porcentajeAsistencia,
+
+      pendientes: p?.length || 0,
+      vencidos,
+
+      pagos: totalPagos,
+      gastos: totalGastos,
+      balance,
+      deudor: totalDeudor
     });
   };
 
   /*
-    ================================
-    FUNCIÓN: obtenerColorEstado
-    ================================
-
-    Devuelve un color según el estado del pendiente
-
-    Se usa para mejorar la visualización en la tabla
+  ==================================================
+  COLORES DE ESTADO
+  ==================================================
   */
-  const obtenerColorEstado = (estado) => {
+  const colorEstado = (estado) => {
     switch (estado) {
-      case "Activo":
-        return "#2563eb"; // azul
-      case "elaborando":
-        return "#f59e0b"; // amarillo
-      case "finalizado":
-        return "#16a34a"; // verde
-      case "cancelado":
-        return "#dc2626"; // rojo
-      default:
-        return "#6b7280"; // gris por defecto
+      case "Activo": return "#2563eb";
+      case "elaborando": return "#f59e0b";
+      case "finalizado": return "#16a34a";
+      case "cancelado": return "#dc2626";
+      default: return "#6b7280";
     }
   };
 
   /*
-    ================================
-    RENDERIZADO (INTERFAZ)
-    ================================
-
-    Aquí se define lo que el usuario ve en pantalla
+  ==================================================
+  INTERFAZ
+  ==================================================
   */
   return (
     <div className="contenedor-principal-pendientes">
 
-      {/* TÍTULO */}
-      <h2 className="titulo-seccion">Dashboard General</h2>
+      <h2 className="titulo-seccion">Dashboard</h2>
 
-      {/* ================================
-          TARJETAS DE RESUMEN
-         ================================ */}
-      <div style={{
-        display: "flex",
-        gap: "15px",
-        flexWrap: "wrap",
-        marginBottom: "30px"
-      }}>
+      {/* ================= ALERTAS ================= */}
+      {alertas.length > 0 && (
+        <div style={{
+          background: "#fff3cd",
+          padding: "15px",
+          borderRadius: "8px",
+          marginBottom: "20px"
+        }}>
+          {alertas.map((a, i) => (
+            <p key={i}>{a}</p>
+          ))}
+        </div>
+      )}
 
-        {/* Cada tarjeta muestra una métrica */}
+      {/* ================= TARJETAS ================= */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "15px" }}>
+
         <div className="card-dashboard">
-          <h4>Total</h4>
-          <p>{resumen.total}</p>
+          <h4>Estudiantes</h4>
+          <p>{resumen.estudiantes}</p>
+        </div>
+
+        <div className="card-dashboard" style={{ backgroundColor: "#16a34a" }}>
+          <h4>Presentes</h4>
+          <p>{resumen.presentes}</p>
+        </div>
+
+        <div className="card-dashboard" style={{ backgroundColor: "#dc2626" }}>
+          <h4>Ausentes</h4>
+          <p>{resumen.ausentes}</p>
+        </div>
+
+        <div className="card-dashboard" style={{ backgroundColor: "#f59e0b" }}>
+          <h4>Excusa</h4>
+          <p>{resumen.excusa}</p>
+        </div>
+
+        <div className="card-dashboard" style={{ backgroundColor: "#6b7280" }}>
+          <h4>Feriados</h4>
+          <p>{resumen.feriados}</p>
         </div>
 
         <div className="card-dashboard">
-          <h4>Activos</h4>
-          <p>{resumen.activos}</p>
+          <h4>Asistencia %</h4>
+          <p>{resumen.porcentajeAsistencia}%</p>
         </div>
 
         <div className="card-dashboard">
-          <h4>En Proceso</h4>
-          <p>{resumen.elaborando}</p>
+          <h4>Pendientes</h4>
+          <p>{resumen.pendientes}</p>
         </div>
 
-        <div className="card-dashboard">
-          <h4>Finalizados</h4>
-          <p>{resumen.finalizados}</p>
-        </div>
-
-        <div className="card-dashboard">
-          <h4>Cancelados</h4>
-          <p>{resumen.cancelados}</p>
-        </div>
-
-        {/* Tarjeta especial para tareas vencidas */}
         <div className="card-dashboard" style={{ backgroundColor: "#dc2626" }}>
           <h4>Vencidos</h4>
           <p>{resumen.vencidos}</p>
         </div>
 
+        {/* 💰 FINANZAS */}
+        <div className="card-dashboard" style={{ backgroundColor: "#16a34a" }}>
+          <h4>Pagos</h4>
+          <p>RD$ {resumen.pagos}</p>
+        </div>
+
+        <div className="card-dashboard" style={{ backgroundColor: "#dc2626" }}>
+          <h4>Gastos</h4>
+          <p>RD$ {resumen.gastos}</p>
+        </div>
+
+        <div className="card-dashboard">
+          <h4>Balance</h4>
+          <p>RD$ {resumen.balance}</p>
+        </div>
+
+        <div className="card-dashboard" style={{ backgroundColor: "#f59e0b" }}>
+          <h4>Deuda</h4>
+          <p>RD$ {resumen.deudor}</p>
+        </div>
+
       </div>
 
-      {/* ================================
-          TABLA DE DATOS
-         ================================ */}
-
+      {/* ================= TABLA ================= */}
       <h3 className="titulo-seccion">Últimos Pendientes</h3>
 
       <table className="tabla-gestion-pendientes">
-
-        {/* Encabezados */}
         <thead>
           <tr>
             <th>Título</th>
@@ -262,37 +309,26 @@ function Dashboard() {
           </tr>
         </thead>
 
-        {/* Cuerpo de la tabla */}
         <tbody>
-
-          {/*
-            .slice(0,5) → limita a 5 registros
-            .map() → recorre los datos y genera filas dinámicamente
-          */}
-          {pendientes.slice(0, 5).map((p) => (
+          {pendientes.slice(0, 5).map(p => (
             <tr key={p.id_pendiente}>
-
               <td>{p.titulo}</td>
               <td>{p.fecha_vencimiento}</td>
-
-              {/* Estado con color dinámico */}
               <td>
                 <span style={{
-                  backgroundColor: obtenerColorEstado(p.estado),
+                  backgroundColor: colorEstado(p.estado),
                   color: "white",
-                  padding: "5px 10px",
-                  borderRadius: "5px",
-                  fontSize: "0.8rem"
+                  padding: "5px",
+                  borderRadius: "5px"
                 }}>
                   {p.estado}
                 </span>
               </td>
-
             </tr>
           ))}
-
         </tbody>
       </table>
+
     </div>
   );
 }

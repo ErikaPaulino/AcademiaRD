@@ -142,3 +142,36 @@
     font-size: 1.6rem;
     font-weight: bold;
 }
+
+/* GRID PARA TARJETAS */
+.grid-dashboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+/* TARJETAS */
+.card-dashboard {
+  flex: 1;
+  min-width: 150px;
+  background-color: #2563eb;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* COLORES */
+.card-dashboard.verde {
+  background-color: #16a34a;
+}
+
+.card-dashboard.rojo {
+  background-color: #dc2626;
+}
+
+.card-dashboard.amarillo {
+  background-color: #f59e0b;
+}
