@@ -151,20 +151,96 @@ const estudiantesInactivos = Object.values(ausenciasPorEstudiante)
     const totalDeudor = pa?.filter(x => x.estado === "pendiente")
       .reduce((acc, x) => acc + Number(x.monto || 0), 0) || 0;
 
-    /*
-    
-    ALERTAS
-    
-    */
-    const nuevasAlertas = [];
+   /*
+==================================================
+ALERTAS INTELIGENTES - NIVEL PRO
+==================================================
 
-    if (vencidos > 0) nuevasAlertas.push(`⚠ Hay ${vencidos} tareas vencidas`);
-    if (ausentes > presentes) nuevasAlertas.push("⚠ Más ausentes que presentes");
-    if (totalDeudor > 0) nuevasAlertas.push(`⚠ Deuda: RD$ ${totalDeudor}`);
-    if (balance < 0) nuevasAlertas.push("⚠ Balance negativo");
-    if (porcentajeAsistencia < 70) nuevasAlertas.push("⚠ Baja asistencia");
+Cada alerta ahora tiene:
+- tipo → para color (warning / danger)
+- mensaje → texto visible
+*/
 
-    setAlertas(nuevasAlertas);
+const nuevasAlertas = [];
+
+/*
+--------------------------------------------------
+TAREAS VENCIDAS (CRÍTICO)
+--------------------------------------------------
+*/
+const tareasVencidas = (p || []).filter(x =>
+  new Date(x.fecha_vencimiento) < hoy &&
+  x.estado !== "finalizado"
+);
+
+if (tareasVencidas.length > 0) {
+  nuevasAlertas.push({
+    tipo: "danger",
+    mensaje: `🚨 ${tareasVencidas.length} tarea(s) vencida(s). Acción requerida inmediata.`
+  });
+}
+
+/*
+--------------------------------------------------
+ASISTENCIA BAJA (WARNING)
+--------------------------------------------------
+*/
+if (porcentajeAsistencia < 70) {
+  nuevasAlertas.push({
+    tipo: "warning",
+    mensaje: `⚠ Asistencia baja (${porcentajeAsistencia}%).`
+  });
+}
+
+/*
+--------------------------------------------------
+MÁS AUSENTES QUE PRESENTES (CRÍTICO)
+--------------------------------------------------
+*/
+if (ausentes > presentes) {
+  nuevasAlertas.push({
+    tipo: "danger",
+    mensaje: "🚨 Hay más estudiantes ausentes que presentes."
+  });
+}
+
+/*
+--------------------------------------------------
+DEUDA PENDIENTE (WARNING)
+--------------------------------------------------
+*/
+if (totalDeudor > 0) {
+  nuevasAlertas.push({
+    tipo: "warning",
+    mensaje: `⚠ Deuda pendiente: RD$ ${totalDeudor}`
+  });
+}
+
+/*
+--------------------------------------------------
+BALANCE NEGATIVO (CRÍTICO)
+--------------------------------------------------
+*/
+if (balance < 0) {
+  nuevasAlertas.push({
+    tipo: "danger",
+    mensaje: "🚨 El sistema está en pérdidas (balance negativo)."
+  });
+}
+
+/*
+--------------------------------------------------
+SIN ALERTAS (BUENA SEÑAL)
+--------------------------------------------------
+*/
+if (nuevasAlertas.length === 0) {
+  nuevasAlertas.push({
+    tipo: "success",
+    mensaje: "✅ Todo está funcionando correctamente."
+  });
+}
+
+setAlertas(nuevasAlertas);
 
     /*
     
@@ -226,8 +302,13 @@ const estudiantesInactivos = Object.values(ausenciasPorEstudiante)
           }}
         >
           {alertas.map((a, i) => (
-            <p key={i}>{a}</p>
-          ))}
+  <div
+    key={i}
+    className={`alerta-dashboard ${a.tipo}`}
+  >
+    {a.mensaje}
+  </div>
+))}
         </div>
       )}
 
