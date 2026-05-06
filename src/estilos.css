@@ -290,7 +290,10 @@ button {
 /* Hover (mouse) */
 button:hover {
     transform: translateY(-2px);
-    filter: brightness(1.1);
+    filter: brightness(1.05);
+
+    /* ✨ brillo dorado */
+    box-shadow: 0 0 10px #facc15;
 }
 
 /* Click */
@@ -300,10 +303,9 @@ button:active {
 
 /* Focus (teclado - accesibilidad real) */
 button:focus {
-    outline: 3px solid #93c5fd;
+    outline: 3px solid #facc15; /* dorado */
     outline-offset: 2px;
 }
-
 
 /*
 
