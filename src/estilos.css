@@ -272,3 +272,96 @@
 .card-dashboard.amarillo {
   background-color: #f59e0b;
 }
+
+
+/* 
+   MEJORAS VISUALES */
+
+/*
+
+BOTONES (HOVER + FOCUS)
+
+*/
+
+button {
+    transition: all 0.2s ease;
+}
+
+/* Hover (mouse) */
+button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+/* Click */
+button:active {
+    transform: scale(0.97);
+}
+
+/* Focus (teclado - accesibilidad real) */
+button:focus {
+    outline: 3px solid #93c5fd;
+    outline-offset: 2px;
+}
+
+
+/*
+
+TARJETAS DASHBOARD Con mejoras visuales
+*/
+
+.card-dashboard {
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hover efecto principal */
+.card-dashboard:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+/*
+Brillo animado (efecto glass / shine)
+*/
+.card-dashboard::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        rgba(255,255,255,0.2),
+        rgba(255,255,255,0)
+    );
+    transform: skewX(-25deg);
+}
+
+/* Animación del brillo al pasar mouse */
+.card-dashboard:hover::before {
+    left: 125%;
+    transition: 0.7s;
+}
+
+
+/*
+
+FOCUS PARA TARJETAS (ACCESIBILIDAD)
+
+Para navegación con teclado
+*/
+.card-dashboard:focus-within {
+    outline: 3px solid #93c5fd;
+}
+
+
+/*
+SUAVIZAR TODA LA UI
+*/
+
+* {
+    scroll-behavior: smooth;
+}
