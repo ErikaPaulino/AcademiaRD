@@ -367,3 +367,44 @@ SUAVIZAR TODA LA UI
 * {
     scroll-behavior: smooth;
 }
+
+/* BOTONES Con letras doradas y que se se elevan */
+
+button {
+    transition: all 0.2s ease;
+    cursor: pointer;
+
+    /* texto dorado */
+    color: #facc15;
+    font-weight: bold;
+
+    /* posición base */
+    transform: translateY(0);
+}
+
+/* HOVER → se eleva + brillo */
+button:hover {
+    transform: translateY(-4px);
+
+    /* glow dorado */
+    box-shadow: 0 8px 20px rgba(250, 204, 21, 0.5);
+
+    /* brillo ligero */
+    filter: brightness(1.05);
+
+    /* brillo en texto */
+    text-shadow: 0 0 6px #facc15;
+}
+
+/* CLICK → efecto presión */
+button:active {
+    transform: translateY(1px) scale(0.97);
+
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
+
+/* FOCUS (accesibilidad) */
+button:focus {
+    outline: 3px solid #facc15;
+    outline-offset: 2px;
+}
