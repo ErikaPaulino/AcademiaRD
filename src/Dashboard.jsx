@@ -1,29 +1,3 @@
-/*
-==================================================
-DASHBOARD PRO - SISTEMA ESCOLAR
-==================================================
-
-Este dashboard:
-
-✔ Lee datos de múltiples tablas (Supabase)
-✔ Calcula métricas reales del sistema
-✔ Genera porcentajes y alertas
-✔ NO modifica datos (solo lectura)
-
-TABLAS USADAS:
-- estudiantes
-- asistencias
-- pendientes
-- pagos
-- egresos
-
-NOTA IMPORTANTE:
-Los nombres de campos deben coincidir con tu BD:
-- pagos.monto
-- pagos.estado (pagado / pendiente)  ← si no existe, ajusta
-- asistencias.estado (presente / ausente / excusa / feriado)
-*/
-
 import React, { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 import "./estilos.css";
@@ -31,9 +5,9 @@ import "./estilos.css";
 function Dashboard() {
 
   /*
-  ==================================================
+ 
   ESTADOS CRUDOS (DATOS DE LA BD)
-  ==================================================
+ 
   */
   const [pendientes, setPendientes] = useState([]);
   const [estudiantes, setEstudiantes] = useState([]);
@@ -41,67 +15,77 @@ function Dashboard() {
   const [pagos, setPagos] = useState([]);
   const [gastos, setGastos] = useState([]);
 
+  // 🆕 NUEVO: CURSOS (VIENE DESDE SUPABASE)
+  const [cursos, setCursos] = useState([]);
+
   /*
-  ==================================================
-  RESUMEN PROCESADO
-  ==================================================
+
+  RESUMEN
+  
   */
   const [resumen, setResumen] = useState({});
 
   /*
-  ==================================================
+  
   ALERTAS DEL SISTEMA
-  ==================================================
+  
   */
   const [alertas, setAlertas] = useState([]);
 
   /*
-  ==================================================
+ 
   CARGA INICIAL
-  ==================================================
+  
   */
   useEffect(() => {
     cargarDatos();
   }, []);
 
   /*
-  ==================================================
-  FUNCIÓN PRINCIPAL
-  ==================================================
+  
+  FUNCIÓN PRINCIPAL 
+  
   */
   const cargarDatos = async () => {
 
-    // 🔹 CONSULTAS
+    // CONSULTAS A BASE DE DATOS
     const { data: p } = await supabase.from("pendientes").select("*");
     const { data: e } = await supabase.from("estudiantes").select("*");
     const { data: a } = await supabase.from("asistencias").select("*");
     const { data: pa } = await supabase.from("pagos").select("*");
     const { data: g } = await supabase.from("egresos").select("*");
 
-    // 🔹 GUARDAR CRUDOS
+    //  CURSOS
+    const { data: c } = await supabase.from("cursos").select("*");
+
+    // GUARDAR EN ESTADO
     setPendientes(p || []);
     setEstudiantes(e || []);
     setAsistencias(a || []);
     setPagos(pa || []);
     setGastos(g || []);
+    setCursos(c || []); // 🆕 cursos reales
 
     const hoy = new Date();
 
     /*
-    ==================================================
-    PENDIENTES
-    ==================================================
+    
+    PENDIENTES (TAREAS)
+    
     */
+
+    // VENCIDO
     const vencidos = (p || []).filter(x =>
       new Date(x.fecha_vencimiento) < hoy &&
       x.estado !== "finalizado"
     ).length;
 
     /*
-    ==================================================
+    
     ASISTENCIAS
-    ==================================================
+    
     */
+
     const presentes = a?.filter(x => x.estado === "presente").length || 0;
     const ausentes = a?.filter(x => x.estado === "ausente").length || 0;
     const excusa = a?.filter(x => x.estado === "excusa").length || 0;
@@ -109,70 +93,52 @@ function Dashboard() {
 
     const totalAsistencias = presentes + ausentes + excusa;
 
-    // 📊 PORCENTAJE DE ASISTENCIA
+    // porcentaje real de asistencia
     const porcentajeAsistencia =
       totalAsistencias > 0
         ? ((presentes / totalAsistencias) * 100).toFixed(1)
         : 0;
 
     /*
-    ==================================================
+    
     FINANZAS
-    ==================================================
+    
     */
 
-    // 💵 PAGOS (ingresos)
     const totalPagos = pa?.reduce(
       (acc, x) => acc + Number(x.monto || 0),
       0
     ) || 0;
 
-    // 💸 GASTOS
     const totalGastos = g?.reduce(
       (acc, x) => acc + Number(x.monto || 0),
       0
     ) || 0;
 
-    // 📊 BALANCE
     const balance = totalPagos - totalGastos;
 
-    // 🔴 DEUDOR (pagos pendientes)
     const totalDeudor = pa?.filter(x => x.estado === "pendiente")
       .reduce((acc, x) => acc + Number(x.monto || 0), 0) || 0;
 
     /*
-    ==================================================
-    ALERTAS INTELIGENTES
-    ==================================================
+    
+    ALERTAS
+    
     */
     const nuevasAlertas = [];
 
-    if (vencidos > 0) {
-      nuevasAlertas.push(`⚠ Hay ${vencidos} tareas vencidas`);
-    }
-
-    if (ausentes > presentes) {
-      nuevasAlertas.push("⚠ Hay más ausentes que presentes");
-    }
-
-    if (totalDeudor > 0) {
-      nuevasAlertas.push(`⚠ Deuda pendiente: RD$ ${totalDeudor}`);
-    }
-
-    if (balance < 0) {
-      nuevasAlertas.push("⚠ El balance es negativo");
-    }
-
-    if (porcentajeAsistencia < 70) {
-      nuevasAlertas.push("⚠ Baja asistencia general");
-    }
+    if (vencidos > 0) nuevasAlertas.push(`⚠ Hay ${vencidos} tareas vencidas`);
+    if (ausentes > presentes) nuevasAlertas.push("⚠ Más ausentes que presentes");
+    if (totalDeudor > 0) nuevasAlertas.push(`⚠ Deuda: RD$ ${totalDeudor}`);
+    if (balance < 0) nuevasAlertas.push("⚠ Balance negativo");
+    if (porcentajeAsistencia < 70) nuevasAlertas.push("⚠ Baja asistencia");
 
     setAlertas(nuevasAlertas);
 
     /*
-    ==================================================
-    GUARDAR RESUMEN
-    ==================================================
+    
+    RESUMEN FINAL
+    
     */
     setResumen({
       estudiantes: e?.length || 0,
@@ -181,10 +147,8 @@ function Dashboard() {
       excusa,
       feriados,
       porcentajeAsistencia,
-
       pendientes: p?.length || 0,
       vencidos,
-
       pagos: totalPagos,
       gastos: totalGastos,
       balance,
@@ -193,9 +157,9 @@ function Dashboard() {
   };
 
   /*
-  ==================================================
-  COLORES DE ESTADO
-  ==================================================
+  
+  COLORES DE ESTADO 
+  
   */
   const colorEstado = (estado) => {
     switch (estado) {
@@ -208,9 +172,9 @@ function Dashboard() {
   };
 
   /*
-  ==================================================
+  
   INTERFAZ
-  ==================================================
+  
   */
   return (
     <div className="contenedor-principal-pendientes">
@@ -219,88 +183,179 @@ function Dashboard() {
 
       {/* ================= ALERTAS ================= */}
       {alertas.length > 0 && (
-        <div style={{
-          background: "#fff3cd",
-          padding: "15px",
-          borderRadius: "8px",
-          marginBottom: "20px"
-        }}>
+        <div
+          role="alert"
+          aria-live="polite"
+          style={{
+            background: "#fff3cd",
+            padding: "15px",
+            borderRadius: "8px",
+            marginBottom: "20px"
+          }}
+        >
           {alertas.map((a, i) => (
             <p key={i}>{a}</p>
           ))}
         </div>
       )}
 
-      {/* ================= TARJETAS ================= */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "15px" }}>
+      {/* 
+          TARJETAS 
+       */}
+      <div
+        role="region"
+        aria-label="Resumen general del sistema"
+        style={{ display: "flex", flexWrap: "wrap", gap: "15px" }}
+      >
 
         <div className="card-dashboard">
           <h4>Estudiantes</h4>
           <p>{resumen.estudiantes}</p>
+          <small>Total registrados en el sistema</small>
         </div>
 
         <div className="card-dashboard" style={{ backgroundColor: "#16a34a" }}>
           <h4>Presentes</h4>
           <p>{resumen.presentes}</p>
+          <small>Asistencia marcada como presente</small>
         </div>
 
         <div className="card-dashboard" style={{ backgroundColor: "#dc2626" }}>
           <h4>Ausentes</h4>
           <p>{resumen.ausentes}</p>
+          <small>No asistieron</small>
         </div>
 
         <div className="card-dashboard" style={{ backgroundColor: "#f59e0b" }}>
           <h4>Excusa</h4>
           <p>{resumen.excusa}</p>
+          <small>Ausencia justificada</small>
         </div>
 
         <div className="card-dashboard" style={{ backgroundColor: "#6b7280" }}>
           <h4>Feriados</h4>
           <p>{resumen.feriados}</p>
+          <small>Días no lectivos</small>
         </div>
 
         <div className="card-dashboard">
           <h4>Asistencia %</h4>
           <p>{resumen.porcentajeAsistencia}%</p>
+          <small>Porcentaje de asistencia general</small>
         </div>
 
         <div className="card-dashboard">
           <h4>Pendientes</h4>
           <p>{resumen.pendientes}</p>
+          <small>Tareas registradas</small>
         </div>
 
         <div className="card-dashboard" style={{ backgroundColor: "#dc2626" }}>
           <h4>Vencidos</h4>
           <p>{resumen.vencidos}</p>
+          <small>Fecha superada sin completar</small>
         </div>
 
-        {/* 💰 FINANZAS */}
         <div className="card-dashboard" style={{ backgroundColor: "#16a34a" }}>
           <h4>Pagos</h4>
           <p>RD$ {resumen.pagos}</p>
+          <small>Ingresos totales</small>
         </div>
 
-        <div className="card-dashboard" style={{ backgroundColor: "#dc2626" }}>
-          <h4>Gastos</h4>
-          <p>RD$ {resumen.gastos}</p>
-        </div>
+        {/* PAGOS PENDIENTES */}
+<div
+  className="card-dashboard"
+  style={{ backgroundColor: "#f59e0b" }}
+  aria-label="Pagos pendientes por cobrar"
+>
+  <h4>Pagos pendientes</h4>
+
+  {/* dato real desde Supabase: pagos con estado "pendiente" */}
+  <p>RD$ {resumen.deudor}</p>
+
+  <small>Dinero que los estudiantes aún deben pagar</small>
+</div>
 
         <div className="card-dashboard">
           <h4>Balance</h4>
           <p>RD$ {resumen.balance}</p>
+          <small>Diferencia ingresos - gastos</small>
         </div>
 
-        <div className="card-dashboard" style={{ backgroundColor: "#f59e0b" }}>
-          <h4>Deuda</h4>
-          <p>RD$ {resumen.deudor}</p>
-        </div>
+    
 
       </div>
 
-      {/* ================= TABLA ================= */}
+      {/* 
+    CURSOS  */}
+<h3 className="titulo-seccion">Cursos disponibles</h3>
+
+<div
+  role="region"
+  aria-label="Lista de cursos disponibles"
+  style={{
+    background: "#f8fafc",
+    padding: "15px",
+    borderRadius: "10px",
+    border: "1px solid #e5e7eb"
+  }}
+>
+
+  {cursos.length > 0 ? (
+    <ul
+      style={{
+        listStyle: "none",
+        padding: 0,
+        margin: 0,
+        display: "flex",
+        flexDirection: "column",
+        gap: "10px"
+      }}
+    >
+
+      {cursos.map((curso) => (
+        <li
+          key={curso.id}
+          style={{
+            padding: "12px 15px",
+            background: "white",
+            borderRadius: "8px",
+            borderLeft: "4px solid #2563eb",
+            display: "flex",
+            flexDirection: "column",
+            gap: "4px"
+          }}
+          aria-label={`Curso ${curso.nombre}`}
+        >
+
+          {/* Nombre del curso */}
+          <strong style={{ fontSize: "15px" }}>
+            📘 {curso.nombre}
+          </strong>
+
+          {/* Descripción */}
+          <span style={{ fontSize: "13px", color: "#6b7280" }}>
+            {curso.descripcion}
+          </span>
+
+        </li>
+      ))}
+
+    </ul>
+  ) : (
+    <p style={{ color: "#6b7280" }}>
+      No hay cursos disponibles en la base de datos
+    </p>
+  )}
+
+</div>
+
+      {/* 
+          TABLA DE PENDIENTES
+       */}
       <h3 className="titulo-seccion">Últimos Pendientes</h3>
 
-      <table className="tabla-gestion-pendientes">
+      <table className="tabla-gestion-pendientes" role="table">
         <thead>
           <tr>
             <th>Título</th>
@@ -315,12 +370,14 @@ function Dashboard() {
               <td>{p.titulo}</td>
               <td>{p.fecha_vencimiento}</td>
               <td>
-                <span style={{
-                  backgroundColor: colorEstado(p.estado),
-                  color: "white",
-                  padding: "5px",
-                  borderRadius: "5px"
-                }}>
+                <span
+                  style={{
+                    backgroundColor: colorEstado(p.estado),
+                    color: "white",
+                    padding: "5px",
+                    borderRadius: "5px"
+                  }}
+                >
                   {p.estado}
                 </span>
               </td>
