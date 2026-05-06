@@ -98,9 +98,40 @@ function Dashboard() {
       totalAsistencias > 0
         ? ((presentes / totalAsistencias) * 100).toFixed(1)
         : 0;
+        
+        /*
+ESTUDIANTES INACTIVOS (REGLA DE NEGOCIO)
+
+*/
+
+const ausenciasPorEstudiante = {};
+
+// Recorremos todas las asistencias
+(a || []).forEach(registro => {
+
+  // Solo contamos si es ausencia
+  if (registro.estado === "ausente") {
+
+    const id = registro.id_estudiante;
+
+    // Si no existe en el objeto, lo inicializamos
+    if (!ausenciasPorEstudiante[id]) {
+      ausenciasPorEstudiante[id] = 0;
+    }
+
+    // Sumamos una ausencia
+    ausenciasPorEstudiante[id]++;
+  }
+});
+
+const estudiantesInactivos = Object.values(ausenciasPorEstudiante)
+  .filter(totalAusencias => totalAusencias > 15)
+  .length;
+
 
     /*
-    
+
+  
     FINANZAS
     
     */
@@ -146,6 +177,7 @@ function Dashboard() {
       ausentes,
       excusa,
       feriados,
+      inactivos: estudiantesInactivos,
       porcentajeAsistencia,
       pendientes: p?.length || 0,
       vencidos,
@@ -243,6 +275,16 @@ function Dashboard() {
           <p>{resumen.porcentajeAsistencia}%</p>
           <small>Porcentaje de asistencia general</small>
         </div>
+
+        <div
+  className="card-dashboard"
+  style={{ backgroundColor: "#6b7280" }}
+  aria-label="Estudiantes inactivos por ausencias"
+>
+  <h4>Inactivos</h4>
+  <p>{resumen.inactivos}</p>
+  <small>Más de 15 ausencias registradas</small>
+</div>
 
         <div className="card-dashboard">
           <h4>Pendientes</h4>
