@@ -15,7 +15,7 @@ function Dashboard() {
   const [pagos, setPagos] = useState([]);
   const [gastos, setGastos] = useState([]);
 
-  // 🆕 NUEVO: CURSOS (VIENE DESDE SUPABASE)
+  // CURSOS (VIENE DESDE SUPABASE)
   const [cursos, setCursos] = useState([]);
 
   /*
