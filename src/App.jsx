@@ -12,7 +12,7 @@ function AppContent() {
   return (
     <div className="App">
       <header style={{ textAlign: 'center', padding: '20px', backgroundColor: '#2563eb', color: 'white', marginBottom: '20px' }}>
-        <h1>Sistema Escolar</h1>
+        <h1>Colegio Molaco</h1>
         <p style={{ fontSize: '0.9rem', margin: '0 0 15px' }}>Sesión: {user?.email}</p>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <button style={{ margin: "5px", padding: '8px 16px', borderRadius: '6px', border: 'none', background: vista === "pendientes" ? '#1e40af' : '#3b82f6', color: 'white', cursor: 'pointer' }} onClick={() => setVista("pendientes")}>Pendientes</button>
