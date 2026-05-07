@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
+import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 
 function Estudiantes() {
   const [estudiantes, setEstudiantes] = useState([]);
   const [cursos, setCursos] = useState([]);
+
   const [modal, setModal] = useState(false);
   const [modalEliminar, setModalEliminar] = useState(false);
+  const [modalCurso, setModalCurso] = useState(false);
+
+  const [nombreCurso, setNombreCurso] = useState("");
+  const [tipoModal, setTipoModal] = useState("insertar");
 
   const [form, setForm] = useState({
     id_estudiante: "",
@@ -16,7 +22,6 @@ function Estudiantes() {
   });
 
   const [errores, setErrores] = useState({});
-  const [tipoModal, setTipoModal] = useState("insertar");
 
   useEffect(() => {
     obtenerEstudiantes();
@@ -27,21 +32,45 @@ function Estudiantes() {
     const { data } = await supabase
       .from("estudiantes")
       .select("*, cursos(nombre)");
+
     setEstudiantes(data || []);
   };
 
   const obtenerCursos = async () => {
-    const { data } = await supabase.from("cursos").select("*");
+    const { data } = await supabase
+      .from("cursos")
+      .select("*");
+
     setCursos(data || []);
+  };
+
+  const guardarCurso = async () => {
+    if (!nombreCurso) return alert("Ingrese un curso");
+
+    await supabase
+      .from("cursos")
+      .insert([{ nombre: nombreCurso }]);
+
+    setNombreCurso("");
+    setModalCurso(false);
+    obtenerCursos();
   };
 
   const validar = () => {
     const err = {};
-    if (!form.nombre) err.nombre = "El nombre es obligatorio";
-    if (!form.apellido) err.apellido = "El apellido es obligatorio";
-    if (!form.telefono) err.telefono = "El teléfono es obligatorio";
-    if (!form.id_curso) err.id_curso = "Seleccione un curso";
+
+    ["nombre", "apellido", "telefono"].forEach((campo) => {
+      if (!form[campo]) {
+        err[campo] = `El ${campo} es obligatorio`;
+      }
+    });
+
+    if (!form.id_curso) {
+      err.id_curso = "Seleccione un curso";
+    }
+
     setErrores(err);
+
     return Object.keys(err).length === 0;
   };
 
@@ -87,41 +116,62 @@ function Estudiantes() {
         id_curso: ""
       }
     );
+
     setTipoModal(tipo);
     setErrores({});
     setModal(true);
   };
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const estiloModal = {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "rgba(0,0,0,0.5)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center"
+  };
+
+  const cajaModal = {
+    background: "white",
+    padding: "20px",
+    borderRadius: "10px",
+    minWidth: "300px"
   };
 
   return (
     <div style={{ padding: "20px", maxWidth: "900px", margin: "0 auto" }}>
-      <h2 style={{ textAlign: "center" }}>Gestión de Estudiantes</h2>
+      <h2 style={{ textAlign: "center", color: "#2563eb" }}>Gestión de Estudiantes</h2>
 
-      <button onClick={() => abrirModal()}>
-        + Agregar Estudiante
-      </button>
+      <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+        <button onClick={() => abrirModal()}>  <FaPlus/></button>
+        <button onClick={() => setModalCurso(true)}> <FaPlus /> Agregar Curso </button>
+      </div>
 
-      <br /><br />
-
-      {/* TABLA */}
       <div style={{
-        backgroundColor: "white",
+        background: "white",
         borderRadius: "12px",
-        boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
-        overflow: "hidden"
+        overflow: "hidden",
+        boxShadow: "0 5px 15px rgba(0,0,0,0.1)"
       }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead style={{ backgroundColor: "#2563eb", color: "white" }}>
+          <thead style={{ background: "#2563eb", color: "white" }}>
             <tr>
-              <th style={{ padding: "12px" }}>#</th>
-              <th style={{ padding: "12px" }}>Nombre</th>
-              <th style={{ padding: "12px" }}>Apellido</th>
-              <th style={{ padding: "12px" }}>Teléfono</th>
-              <th style={{ padding: "12px" }}>Curso</th>
-              <th style={{ padding: "12px" }}>Acciones</th>
+              {["#", "Nombre", "Apellido", "Teléfono", "Curso", "Acciones"]
+                .map((t) => (
+                  <th key={t} style={{ padding: "12px" }}>
+                    {t}
+                  </th>
+              ))}
             </tr>
           </thead>
 
@@ -131,27 +181,22 @@ function Estudiantes() {
                 key={est.id_estudiante}
                 style={{
                   textAlign: "center",
-                  backgroundColor: i % 2 === 0 ? "#f9fafb" : "white"
+                  background: i % 2 === 0 ? "#f9fafb" : "white"
                 }}
               >
                 <td style={{ padding: "12px" }}>{i + 1}</td>
-                <td style={{ padding: "12px" }}>{est.nombre}</td>
-                <td style={{ padding: "12px" }}>{est.apellido}</td>
-                <td style={{ padding: "12px" }}>{est.telefono}</td>
-                <td style={{ padding: "12px" }}>{est.cursos?.nombre}</td>
+                <td>{est.nombre}</td>
+                <td>{est.apellido}</td>
+                <td>{est.telefono}</td>
+                <td>{est.cursos?.nombre}</td>
 
-                <td style={{ padding: "12px" }}>
-                  <button onClick={() => abrirModal(est, "editar")}>
-                    ✏️
-                  </button>
+                <td>
+                  <button onClick={() => abrirModal(est, "editar")}> <FaEdit /> </button>
 
-                  <button
-                    onClick={() => {
-                      setForm(est);
-                      setModalEliminar(true);
-                    }}
-                  >
-                    🗑️
+                  <button onClick={() => {
+                    setForm(est);
+                    setModalEliminar(true);
+                  }}><FaTrash />
                   </button>
                 </td>
               </tr>
@@ -160,19 +205,15 @@ function Estudiantes() {
         </table>
       </div>
 
-      {/* MODAL */}
+      {/* MODAL ESTUDIANTE */}
       {modal && (
-        <div style={{
-          position: "fixed",
-          top: 0, left: 0,
-          width: "100%", height: "100%",
-          background: "rgba(0,0,0,0.5)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center"
-        }}>
-          <div style={{ background: "white", padding: "20px", borderRadius: "10px" }}>
-            <h3>{tipoModal === "insertar" ? "Agregar" : "Editar"} Estudiante</h3>
+        <div style={estiloModal}>
+          <div style={cajaModal}>
+            <h3>
+              {tipoModal === "insertar"
+                ? "Agregar"
+                : "Editar"} Estudiante
+            </h3>
 
             {["nombre", "apellido", "telefono"].map((campo) => (
               <div key={campo}>
@@ -182,21 +223,36 @@ function Estudiantes() {
                   value={form[campo] || ""}
                   onChange={handleChange}
                 />
-                {errores[campo] && <span role="alert">{errores[campo]}</span>}
+
+                {errores[campo] && (
+                  <span role="alert">{errores[campo]}</span>
+                )}
               </div>
             ))}
 
-            <select name="id_curso" onChange={handleChange} value={form.id_curso || ""}>
+            <br/>
+
+            <select
+              name="id_curso"
+              value={form.id_curso || ""}
+              onChange={handleChange}
+            >
               <option value="">Seleccione curso</option>
-              {cursos.map(c => (
-                <option key={c.id_curso} value={c.id_curso}>
+
+              {cursos.map((c) => (
+                <option
+                  key={c.id_curso}
+                  value={c.id_curso}
+                >
                   {c.nombre}
                 </option>
               ))}
             </select>
-            {errores.id_curso && <span role="alert">{errores.id_curso}</span>}
 
-            <br /><br />
+            {errores.id_curso && (
+              <span role="alert">{errores.id_curso}</span>
+            )}
+            <br/><br/>
 
             <button onClick={guardar}>Guardar</button>
             <button onClick={() => setModal(false)}>Cancelar</button>
@@ -204,20 +260,34 @@ function Estudiantes() {
         </div>
       )}
 
+      {/* MODAL CURSO */}
+      {modalCurso && (
+        <div style={estiloModal}>
+          <div style={cajaModal}>
+            <h3>Agregar Curso</h3>
+
+            <input
+              placeholder="Nombre del curso"
+              value={nombreCurso}
+              onChange={(e) =>
+                setNombreCurso(e.target.value)
+              }
+            />
+            <br/><br/>
+
+            <button onClick={guardarCurso}>Guardar</button>
+            <button onClick={() => setModalCurso(false)}>Cancelar</button>
+          </div>
+        </div>
+      )}
+
       {/* MODAL ELIMINAR */}
       {modalEliminar && (
-        <div style={{
-          position: "fixed",
-          top: 0, left: 0,
-          width: "100%", height: "100%",
-          background: "rgba(0,0,0,0.5)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center"
-        }}>
-          <div style={{ background: "white", padding: "20px", borderRadius: "10px" }}>
+        <div style={estiloModal}>
+          <div style={cajaModal}>
             <p>¿Eliminar estudiante {form.nombre}?</p>
             <button onClick={eliminar}>Si</button>
+
             <button onClick={() => setModalEliminar(false)}>No</button>
           </div>
         </div>
