@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     if (error) throw error;
   };
 
-  // ✅ FUNCIÓN FALTANTE AGREGADA
+  //  FUNCIÓN FALTANTE AGREGADA
   const signup = async (email, password) => {
     const { error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    // ✅ IMPORTANTE: 'signup' ahora está incluido en el value
+    //  IMPORTANTE: 'signup' ahora está incluido en el value
     <AuthContext.Provider value={{ user, login, signup, logout, loading }}>
       {!loading && children}
     </AuthContext.Provider>
