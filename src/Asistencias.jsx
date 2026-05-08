@@ -34,37 +34,47 @@ function Asistencias() {
     if (error) {
       console.log(error);
     } else {
-      alert("Asistencia guardada");
+      alert(`Estado guardado: ${estado}`);
     }
   }
 
   return (
-    <div style={{
-      padding: "20px",
-      maxWidth: "900px",
-      margin: "0 auto"
-    }}>
-      <h2 style={{
-        marginBottom: "20px",
-        textAlign: "center"
-      }}>
+    <div
+      style={{
+        padding: "20px",
+        maxWidth: "900px",
+        margin: "0 auto"
+      }}
+    >
+      <h2
+        style={{
+          marginBottom: "20px",
+          textAlign: "center"
+        }}
+      >
         Registro de Asistencia
       </h2>
 
-      <div style={{
-        backgroundColor: "white",
-        borderRadius: "12px",
-        boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
-        overflow: "hidden"
-      }}>
-        <table style={{
-          width: "100%",
-          borderCollapse: "collapse"
-        }}>
-          <thead style={{
-            backgroundColor: "#2563eb",
-            color: "white"
-          }}>
+      <div
+        style={{
+          backgroundColor: "white",
+          borderRadius: "12px",
+          boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
+          overflow: "hidden"
+        }}
+      >
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse"
+          }}
+        >
+          <thead
+            style={{
+              backgroundColor: "#2563eb",
+              color: "white"
+            }}
+          >
             <tr>
               <th style={{ padding: "12px" }}>Estudiante</th>
               <th style={{ padding: "12px" }}>Acciones</th>
@@ -73,7 +83,7 @@ function Asistencias() {
 
           <tbody>
             {estudiantes.map((est, index) => (
-              <tr 
+              <tr
                 key={est.id_estudiante}
                 style={{
                   textAlign: "center",
@@ -85,10 +95,13 @@ function Asistencias() {
                 </td>
 
                 <td style={{ padding: "12px" }}>
-                  <button 
-                    onClick={() => marcarAsistencia(est.id_estudiante, "presente")}
+                  <button
+                    onClick={() =>
+                      marcarAsistencia(est.id_estudiante, "presente")
+                    }
                     style={{
                       marginRight: "10px",
+                      marginBottom: "5px",
                       padding: "8px 16px",
                       borderRadius: "8px",
                       border: "none",
@@ -98,12 +111,16 @@ function Asistencias() {
                       fontWeight: "bold"
                     }}
                   >
-                    ✔ Presente
+                    Presente
                   </button>
 
-                  <button 
-                    onClick={() => marcarAsistencia(est.id_estudiante, "ausente")}
+                  <button
+                    onClick={() =>
+                      marcarAsistencia(est.id_estudiante, "ausente")
+                    }
                     style={{
+                      marginRight: "10px",
+                      marginBottom: "5px",
                       padding: "8px 16px",
                       borderRadius: "8px",
                       border: "none",
@@ -113,7 +130,43 @@ function Asistencias() {
                       fontWeight: "bold"
                     }}
                   >
-                    ✖ Ausente
+                    Ausente
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      marcarAsistencia(est.id_estudiante, "excusa")
+                    }
+                    style={{
+                      marginRight: "10px",
+                      marginBottom: "5px",
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      border: "none",
+                      backgroundColor: "#eab308",
+                      color: "white",
+                      cursor: "pointer",
+                      fontWeight: "bold"
+                    }}
+                  >
+                    Excusa
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      marcarAsistencia(est.id_estudiante, "feriado")
+                    }
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: "8px",
+                      border: "none",
+                      backgroundColor: "#2563eb",
+                      color: "white",
+                      cursor: "pointer",
+                      fontWeight: "bold"
+                    }}
+                  >
+                    Feriado
                   </button>
                 </td>
               </tr>
