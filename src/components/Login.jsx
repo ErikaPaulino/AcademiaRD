@@ -12,7 +12,7 @@ export default function Login() {
   
   const { login, signup } = useAuth()
 
-  // 🔒 Validación estricta de contraseña
+  //  Validación estricta de contraseña
   const validatePassword = (pass) => {
     const hasUpper = /[A-Z]/.test(pass)
     const hasNumber = /[0-9]/.test(pass)
@@ -27,7 +27,7 @@ export default function Login() {
     setSuccess('')
     if (isLoading) return
 
-    // 🔍 Validaciones solo para REGISTRO
+    //  Validaciones solo para REGISTRO
     if (!isLogin) {
       if (password !== confirmPassword) {
         setError('Las contraseñas no coinciden')
