@@ -100,7 +100,7 @@ function Dashboard() {
         : 0;
         
         /*
-ESTUDIANTES INACTIVOS (REGLA DE NEGOCIO)
+ESTUDIANTES INACTIVOS
 
 */
 
@@ -152,21 +152,13 @@ const estudiantesInactivos = Object.values(ausenciasPorEstudiante)
       .reduce((acc, x) => acc + Number(x.monto || 0), 0) || 0;
 
    /*
-==================================================
-ALERTAS INTELIGENTES - NIVEL PRO
-==================================================
-
-Cada alerta ahora tiene:
-- tipo → para color (warning / danger)
-- mensaje → texto visible
+ALERTAS 
 */
 
 const nuevasAlertas = [];
 
 /*
---------------------------------------------------
-TAREAS VENCIDAS (CRÍTICO)
---------------------------------------------------
+TAREAS VENCIDAS 
 */
 const tareasVencidas = (p || []).filter(x =>
   new Date(x.fecha_vencimiento) < hoy &&
@@ -181,9 +173,7 @@ if (tareasVencidas.length > 0) {
 }
 
 /*
---------------------------------------------------
-ASISTENCIA BAJA (WARNING)
---------------------------------------------------
+ASISTENCIA BAJA
 */
 if (porcentajeAsistencia < 70) {
   nuevasAlertas.push({
@@ -193,9 +183,7 @@ if (porcentajeAsistencia < 70) {
 }
 
 /*
---------------------------------------------------
-MÁS AUSENTES QUE PRESENTES (CRÍTICO)
---------------------------------------------------
+MÁS AUSENTES QUE PRESENTES 
 */
 if (ausentes > presentes) {
   nuevasAlertas.push({
@@ -205,9 +193,8 @@ if (ausentes > presentes) {
 }
 
 /*
---------------------------------------------------
-DEUDA PENDIENTE (WARNING)
---------------------------------------------------
+
+DEUDA PENDIENTE
 */
 if (totalDeudor > 0) {
   nuevasAlertas.push({
@@ -217,9 +204,7 @@ if (totalDeudor > 0) {
 }
 
 /*
---------------------------------------------------
-BALANCE NEGATIVO (CRÍTICO)
---------------------------------------------------
+BALANCE NEGATIVO 
 */
 if (balance < 0) {
   nuevasAlertas.push({
@@ -229,9 +214,7 @@ if (balance < 0) {
 }
 
 /*
---------------------------------------------------
-SIN ALERTAS (BUENA SEÑAL)
---------------------------------------------------
+SIN ALERTAS
 */
 if (nuevasAlertas.length === 0) {
   nuevasAlertas.push({
@@ -289,7 +272,7 @@ setAlertas(nuevasAlertas);
 
       <h2 className="titulo-seccion">Dashboard</h2>
 
-      {/* ================= ALERTAS ================= */}
+      {/* ALERTAS  */}
       {alertas.length > 0 && (
         <div
           role="alert"
@@ -313,101 +296,201 @@ setAlertas(nuevasAlertas);
       )}
 
       {/* 
-          TARJETAS 
-       */}
-      <div
-        role="region"
-        aria-label="Resumen general del sistema"
-        style={{ display: "flex", flexWrap: "wrap", gap: "15px" }}
-      >
+   SECCIÓN ACADÉMICA*/}
 
-        <div className="card-dashboard">
-          <h4>Estudiantes</h4>
-          <p>{resumen.estudiantes}</p>
-          <small>Total registrados en el sistema</small>
-        </div>
-
-        <div className="card-dashboard" style={{ backgroundColor: "#16a34a" }}>
-          <h4>Presentes</h4>
-          <p>{resumen.presentes}</p>
-          <small>Asistencia marcada como presente</small>
-        </div>
-
-        <div className="card-dashboard" style={{ backgroundColor: "#dc2626" }}>
-          <h4>Ausentes</h4>
-          <p>{resumen.ausentes}</p>
-          <small>No asistieron</small>
-        </div>
-
-        <div className="card-dashboard" style={{ backgroundColor: "#f59e0b" }}>
-          <h4>Excusa</h4>
-          <p>{resumen.excusa}</p>
-          <small>Ausencia justificada</small>
-        </div>
-
-        <div className="card-dashboard" style={{ backgroundColor: "#6b7280" }}>
-          <h4>Feriados</h4>
-          <p>{resumen.feriados}</p>
-          <small>Días no lectivos</small>
-        </div>
-
-        <div className="card-dashboard">
-          <h4>Asistencia %</h4>
-          <p>{resumen.porcentajeAsistencia}%</p>
-          <small>Porcentaje de asistencia general</small>
-        </div>
-
-        <div
-  className="card-dashboard"
-  style={{ backgroundColor: "#6b7280" }}
-  aria-label="Estudiantes inactivos por ausencias"
+<section
+  className="seccion-dashboard"
+  aria-label="Resumen académico"
 >
-  <h4>Inactivos</h4>
-  <p>{resumen.inactivos}</p>
-  <small>Más de 15 ausencias registradas</small>
-</div>
 
-        <div className="card-dashboard">
-          <h4>Pendientes</h4>
-          <p>{resumen.pendientes}</p>
-          <small>Tareas registradas</small>
-        </div>
+  <h3 className="titulo-dashboard-seccion">
+    📚 Resumen Académico
+  </h3>
 
-        <div className="card-dashboard" style={{ backgroundColor: "#dc2626" }}>
-          <h4>Vencidos</h4>
-          <p>{resumen.vencidos}</p>
-          <small>Fecha superada sin completar</small>
-        </div>
+  <div className="grid-dashboard-pro">
 
-        <div className="card-dashboard" style={{ backgroundColor: "#16a34a" }}>
-          <h4>Pagos</h4>
-          <p>RD$ {resumen.pagos}</p>
-          <small>Ingresos totales</small>
-        </div>
+    {/* TOTAL ESTUDIANTES */}
+    <div className="card-dashboard">
+      <h4>Estudiantes</h4>
 
-        {/* PAGOS PENDIENTES */}
-<div
-  className="card-dashboard"
-  style={{ backgroundColor: "#f59e0b" }}
-  aria-label="Pagos pendientes por cobrar"
+      <p>{resumen.estudiantes}</p>
+
+      <small>
+        Total registrados en el sistema
+      </small>
+    </div>
+
+    {/* PRESENTES */}
+    <div
+      className="card-dashboard"
+      style={{ backgroundColor: "#16a34a" }}
+    >
+      <h4>Presentes</h4>
+
+      <p>{resumen.presentes}</p>
+
+      <small>
+        Estudiantes presentes hoy
+      </small>
+    </div>
+
+    {/* AUSENTES */}
+    <div
+      className="card-dashboard"
+      style={{ backgroundColor: "#dc2626" }}
+    >
+      <h4>Ausentes</h4>
+
+      <p>{resumen.ausentes}</p>
+
+      <small>
+        Estudiantes ausentes
+      </small>
+    </div>
+
+    {/* EXCUSA */}
+    <div
+      className="card-dashboard"
+      style={{ backgroundColor: "#f59e0b" }}
+    >
+      <h4>Excusas</h4>
+
+      <p>{resumen.excusa}</p>
+
+      <small>
+        Ausencias justificadas
+      </small>
+    </div>
+
+    {/* INACTIVOS */}
+    <div
+      className="card-dashboard"
+      style={{ backgroundColor: "#6b7280" }}
+    >
+      <h4>Inactivos</h4>
+
+      <p>{resumen.inactivos}</p>
+
+      <small>
+        Más de 15 ausencias registradas
+      </small>
+    </div>
+
+  </div>
+</section>
+
+{/* 
+   SECCIÓN FINANCIERA */}
+
+<section
+  className="seccion-dashboard"
+  aria-label="Resumen financiero"
 >
-  <h4>Pagos pendientes</h4>
 
-  {/* dato real desde Supabase: pagos con estado "pendiente" */}
-  <p>RD$ {resumen.deudor}</p>
+  <h3 className="titulo-dashboard-seccion">
+    💰 Finanzas
+  </h3>
 
-  <small>Dinero que los estudiantes aún deben pagar</small>
-</div>
+  <div className="grid-dashboard-pro">
 
-        <div className="card-dashboard">
-          <h4>Balance</h4>
-          <p>RD$ {resumen.balance}</p>
-          <small>Diferencia ingresos - gastos</small>
-        </div>
+    {/* PAGOS */}
+    <div
+      className="card-dashboard"
+      style={{ backgroundColor: "#16a34a" }}
+    >
+      <h4>Pagos</h4>
 
-    
+      <p>RD$ {resumen.pagos}</p>
 
-      </div>
+      <small>
+        Ingresos totales registrados
+      </small>
+    </div>
+
+    {/* DEUDAS */}
+    <div
+      className="card-dashboard"
+      style={{ backgroundColor: "#f59e0b" }}
+    >
+      <h4>Pagos pendientes</h4>
+
+      <p>RD$ {resumen.deudor}</p>
+
+      <small>
+        Dinero pendiente por cobrar
+      </small>
+    </div>
+
+    {/* BALANCE */}
+    <div className="card-dashboard">
+
+      <h4>Balance</h4>
+
+      <p>RD$ {resumen.balance}</p>
+
+      <small>
+        Diferencia entre ingresos y gastos
+      </small>
+    </div>
+
+  </div>
+</section>
+
+{/* 
+   SECCIÓN OPERATIVA
+ */}
+
+<section
+  className="seccion-dashboard"
+  aria-label="Gestión escolar"
+>
+
+  <h3 className="titulo-dashboard-seccion">
+    📋 Gestión Escolar
+  </h3>
+
+  <div className="grid-dashboard-pro">
+
+    {/* PENDIENTES */}
+    <div className="card-dashboard">
+
+      <h4>Pendientes</h4>
+
+      <p>{resumen.pendientes}</p>
+
+      <small>
+        Tareas registradas
+      </small>
+    </div>
+
+    {/* VENCIDOS */}
+    <div
+      className="card-dashboard"
+      style={{ backgroundColor: "#dc2626" }}
+    >
+      <h4>Vencidos</h4>
+
+      <p>{resumen.vencidos}</p>
+
+      <small>
+        Tareas fuera de fecha
+      </small>
+    </div>
+
+    {/* ASISTENCIA */}
+    <div className="card-dashboard">
+
+      <h4>Asistencia %</h4>
+
+      <p>{resumen.porcentajeAsistencia}%</p>
+
+      <small>
+        Porcentaje general de asistencia
+      </small>
+    </div>
+
+  </div>
+</section>
 
       {/* 
     CURSOS  */}
