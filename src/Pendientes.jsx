@@ -16,7 +16,7 @@ function Pendientes() {
     obtenerPendientes();
   }, []);
 
-  // Función para obtener pendientes desde Supabase
+  // Funcion para obtener pendientes desde Supabase
 
   const obtenerPendientes = async () => {
     const { data, error } = await supabase
@@ -40,7 +40,7 @@ function Pendientes() {
 
     if (error) alert("Error: " + error.message);
     else {
-      // 🔧 CORREGIDO: estado en minúscula
+     
       setNuevoPendiente({ titulo: '', descripcion: '', estado: 'activo', fecha_vencimiento: '' });
       obtenerPendientes();
     }
