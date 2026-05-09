@@ -3,6 +3,7 @@ import Estudiantes from "./Estudiantes";
 import Pendientes from './Pendientes'
 import Asistencias from "./Asistencias"
 import Dashboard from "./Dashboard"
+import Pagos from "./Pagos"
 import Login from './components/Login'
 import { useAuth } from './context/AuthContext'
 
@@ -19,6 +20,7 @@ function AppContent() {
           <button style={{ margin: "5px", padding: '8px 16px', borderRadius: '6px', border: 'none', background: vista === "estudiantes" ? '#1e40af' : '#3b82f6', color: 'white', cursor: 'pointer' }} onClick={() => setVista("estudiantes")}>Estudiantes</button>
           <button style={{ margin: "5px", padding: '8px 16px', borderRadius: '6px', border: 'none', background: vista === "pendientes" ? '#1e40af' : '#3b82f6', color: 'white', cursor: 'pointer' }} onClick={() => setVista("pendientes")}>Pendientes</button>
           <button style={{ margin: "5px", padding: '8px 16px', borderRadius: '6px', border: 'none', background: vista === "asistencias" ? '#1e40af' : '#3b82f6', color: 'white', cursor: 'pointer' }} onClick={() => setVista("asistencias")}>Asistencia</button>
+          <button style={{ margin: "5px", padding: '8px 16px', borderRadius: '6px', border: 'none', background: vista === "pagos" ? '#1e40af' : '#3b82f6', color: 'white', cursor: 'pointer' }} onClick={() => setVista("pagos")}>Pagos</button>
           <button style={{ margin: "5px", padding: '8px 16px', borderRadius: '6px', border: 'none', background: vista === "dashboard" ? '#1e40af' : '#3b82f6', color: 'white', cursor: 'pointer' }} onClick={() => setVista("dashboard")}>Dashboard</button>
           <button style={{ margin: "5px", padding: '8px 16px', borderRadius: '6px', border: 'none', background: '#dc2626', color: 'white', cursor: 'pointer' }} onClick={logout}>Cerrar Sesión</button>
         </div>
@@ -26,6 +28,7 @@ function AppContent() {
       {vista === "estudiantes" && <Estudiantes />}
       {vista === "pendientes" && <Pendientes idNivelActual={1} />}
       {vista === "asistencias" && <Asistencias />}
+      {vista === "pagos" && <Pagos />}
       {vista === "dashboard" && <Dashboard />}
     </div>
   )
